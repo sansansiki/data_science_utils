@@ -15,3 +15,4 @@ Data science utils with python, including data processing, machine learning, dat
   
 - load_file_with_p : load pickle file
 - save_file_with_p : save pickle file
+- check_file_exits ：Check whether the file exists
