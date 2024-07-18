@@ -16,3 +16,10 @@ Data science utils with python, including data processing, machine learning, dat
 - load_file_with_p : load pickle file
 - save_file_with_p : save pickle file
 - check_file_exits ：Check whether the file exists
+- get_dir_info : Get information about the files in the folder
+
+
+### data_processing
+- [Data Processing API Reference](docs/data_processing.md)
+  
+- sorted_by_dict_value : Sort the dictionary values
