@@ -23,3 +23,4 @@ Data science utils with python, including data processing, machine learning, dat
 - [Data Processing API Reference](docs/data_processing.md)
   
 - sorted_by_dict_value : Sort the dictionary values
+- get_df_null_rate : Gets the number and percentage of missing values for each column in the DataFrame
