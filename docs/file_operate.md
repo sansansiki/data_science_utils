@@ -10,4 +10,5 @@
     >all_file_paths: 该文件夹下的所有文件绝对路径(type: list)   
      all_file_names: 该文件夹下的所有文件名 (type: list)    
      tree_dir: 该文件夹下的文件树(不包括文件名) 
-
+     
+- check_path_type : check_path_type(path) return : 0:file 1: folder -1:other

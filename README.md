@@ -17,7 +17,7 @@ Data science utils with python, including data processing, machine learning, dat
 - save_file_with_p : save pickle file
 - check_file_exits ：Check whether the file exists
 - get_dir_info : Get information about the files in the folder
-
+- check_path_type : check path is folder or file
 
 ### data_processing
 - [Data Processing API Reference](docs/data_processing.md)

@@ -40,3 +40,20 @@ def get_dir_info(file_root):
         tree_dir.append('/'.join(file_path.replace(file_root,'').split('/')[1:-1]))
     
     return all_file_paths,all_file_names,list(set(tree_dir[1:]))
+
+def check_path_type(path):
+    """判断路径是否为文件夹或者文件夹
+    
+    Returns
+    ---------
+    (type: int) \n 0:文件\n 1:文件夹\n -1非文件和非文件夹\n
+    """
+    
+    if os.path.isfile(path):
+        return 0
+    # 文件夹
+    elif os.path.isdir(path):
+        return 1
+    else:
+        return -1
+    
