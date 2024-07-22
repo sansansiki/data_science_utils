@@ -10,6 +10,11 @@ Data science utils with python, including data processing, machine learning, dat
 
 ## ALL API REFERENDE
 
+### Meachine Learning
+- [Machine Learning](docs/machine_learning.md)
+
+- class ML_Param_Selection : ML classification model parameter selection
+
 ### file_operate 
 - [File Operate](docs/file_operate.md)
   
