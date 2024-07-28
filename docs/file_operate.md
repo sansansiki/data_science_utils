@@ -7,8 +7,8 @@
 - check_file_exits : check_file_exits(file_path) : return True or False
 - get_dir_info : get_dir_info(file_root) return:
   
-    >all_file_paths: 该文件夹下的所有文件绝对路径(type: list)   
-     all_file_names: 该文件夹下的所有文件名 (type: list)    
-     tree_dir: 该文件夹下的文件树(不包括文件名) 
+    >all_file_paths: Absolute path to all files in this folder(type: list)   
+     all_file_names: All file names in the folder (type: list)    
+     tree_dir: file tree(不包括文件名) 
      
 - check_path_type : check_path_type(path) return : 0:file 1: folder -1:other
