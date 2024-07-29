@@ -29,3 +29,4 @@ Data science utils with python, including data processing, machine learning, dat
   
 - sorted_by_dict_value : Sort the dictionary values
 - get_df_null_rate : Gets the number and percentage of missing values for each column in the DataFrame
+- split_dict_into_n_parts : Split the dictionary into n parts
