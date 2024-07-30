@@ -1,5 +1,5 @@
 # Data Science Utils
-Data science utils with python, including data processing, machine learning, data visualization, and more. is updating ....
+Data science utils with python, including data processing, machine learning, data visualization, and more. is updating .......
 
 ## API Documentation
 - [File Operate](./docs/file_operate.md)
