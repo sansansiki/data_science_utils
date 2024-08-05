@@ -3,6 +3,7 @@
 import pandas as pd
 from operator import itemgetter
 from math import ceil
+import numpy as np
 
 def sorted_by_dict_value(dic,desc=False):
     '''对字典的value进行排序\n
@@ -21,6 +22,7 @@ def get_df_null_rate(data_new):
                                                                  100*sum(pd.isnull(data_new[c]))/len(data_new[c])))
 
 def split_dict_into_n_parts(d, n):
+    '''将字典按n等份分割'''
     items = list(d.items())
     num_items = len(items)
     items_per_part = ceil(num_items / n)
@@ -30,3 +32,20 @@ def split_dict_into_n_parts(d, n):
         result.append(dict(items[i:i+items_per_part]))
     
     return result
+
+def remove_highly_correlated_columns(df, threshold):
+    '''delete highly correlated(>threshold) columns
+    return dataframe and the dropped columns
+    '''
+    # 计算相关系数矩阵
+    corr_matrix = df.corr().abs()
+
+    # 创建一个布尔值的DataFrame，表示相关系数是否大于阈值
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool_))
+
+    # 获取要删除的列名
+    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+    # 删除相关系数较高的列
+    df = df.drop(to_drop, axis=1)
+
+    return df,to_drop

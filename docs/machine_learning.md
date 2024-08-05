@@ -16,3 +16,7 @@
 
   - fit(self, x, y, n_trials=100) 
     - Return: optuna.study  The Result of the best param
+
+
+- class Smote_ML_Param_Selection() 
+  - Description: This class is used to select the best parameters for a given machine learning model. It uses OPTUNA to find the best parameters and then trains the model with the best parameters. Use Smote to deal with unbalanced dataset. 
