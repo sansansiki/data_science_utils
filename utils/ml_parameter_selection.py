@@ -211,3 +211,166 @@ class ML_Param_Selection():
         print(study.best_params)
         print(study.best_value)
         return study
+
+class smote_ml_Param_Selection():
+    '''经过上采样的特征选择方法'''
+    def __init__(self,cv=3,random_state=0,is_unbalance=False,scorer=f1_score):
+        self.cv = cv
+        self.random_state = random_state
+        self.is_unbalance = is_unbalance
+        self.scorer = scorer 
+
+    def get_params(self,key,trial):
+        if self.model_name == 'XGBoost':
+            return {
+                # L2 regularization weight, Increasing this value will make model more conservative
+                'lambda': trial.suggest_float('reg_lambda', 1e-3, 10.0),
+                # L1 regularization weight, Increasing this value will make model more conservative
+                'alpha': trial.suggest_float('reg_alpha', 1e-3, 10.0),
+                # Min loss reduction for further partition on a leaf node. larger,the more conservative
+                'gamma':trial.suggest_categorical('gamma', [0,1,5]),
+                # sampling according to each tree
+                'colsample_bytree': trial.suggest_categorical('colsample_bytree',
+                                [0.6,0.7,0.8,0.9,1.0]),
+                # sampling ratio for training data
+                'subsample': trial.suggest_categorical('subsample', [0.6,0.7,0.8,0.9,1.0]),
+                'learning_rate': trial.suggest_float('learning_rate',0.0001,1),                         
+                'n_estimators': trial.suggest_int('n_estimators',10,500,10),
+                # maximum depth of the tree, signifies complexity of the tree
+                'max_depth': trial.suggest_int('max_depth',3,25,1),
+                # minimum child weight, larger the term more conservative the tree
+                'min_child_weight': trial.suggest_int('min_child_weight', 1, 10),
+                'scale_pos_weight': trial.suggest_float('scale_pos_weight',1,10)
+            }
+        if self.model_name == 'RF':
+                return {
+                'max_features': trial.suggest_float('max_features', 0.15, 1.0),
+                'max_features': trial.suggest_int('min_samples_split', 2, 14),
+                'min_samples_leaf': trial.suggest_int('min_samples_leaf', 1, 14),
+                'max_samples': trial.suggest_float('max_samples', 0.6, 0.99),
+                'max_depth': trial.suggest_int('max_depth', 1,30),
+                'n_estimators': trial.suggest_int('n_estimators', 10,500,10),
+            }
+        if self.model_name == 'MLP':
+                return {
+                'hidden_layer_sizes': trial.suggest_categorical('hidden_layer_sizes', [(64,32),(128,64),(128,64,32),(256,128,64)]),
+                'activation':trial.suggest_categorical('activation',['logistic', 'tanh', 'relu']),
+                "solver": trial.suggest_categorical('solver',['adam']),
+                'learning_rate_init': trial.suggest_float('learning_rate_init',0.0001,1),
+                'n_iter_no_change':trial.suggest_int('n_iter_no_change',10,300,10),
+                'alpha' : trial.suggest_float('alpha',
+                                0.0001,1),
+                'max_iter':trial.suggest_int('max_iter',200,1000,50),
+            }
+        if self.model_name == 'GBDT':
+                return {
+                # L2 regularization weight, Increasing this value will make model more conservative
+                'min_samples_split': trial.suggest_int('min_samples_split', 2, 20),
+                # sampling ratio for training data
+                'subsample': trial.suggest_categorical('subsample', [0.6,0.7,0.8,0.9,1.0]),
+                #'subsample': trial.suggest_categorical('subsample', [0.8,0.9,1.0]),
+                'learning_rate': trial.suggest_float('learning_rate',
+                                0.0001,1),                          
+                #                [0.008,0.009,0.01,0.012,0.014,0.016,0.018, 0.02,0.05]),
+                'n_estimators': trial.suggest_int('n_estimators',10,300,10),
+                # maximum depth of the tree, signifies complexity of the tree
+                'max_depth': trial.suggest_int('max_depth',2,15,1),
+                'n_iter_no_change':trial.suggest_int('n_iter_no_change',10,200,10)
+                # minimum child weight, larger the term more conservative the tree                     
+            }
+        if self.model_name == 'LR':
+                return {
+                # 'tol' : trial.suggest_float('tol' , 1e-6 , 1e-3),
+                # 'C' : trial.suggest_float("C", 1e-2, 1),
+                'fit_intercept' : trial.suggest_categorical('fit_intercept' , [True, False]),
+                # 'solver' : trial.suggest_categorical('solver' , ['lbfgs','liblinear']),
+            }
+    
+        
+        return param[key]
+    
+    def get_model(self,model_name,trial):
+        param = self.get_params(model_name,trial)
+        positive_class_weight  = trial.suggest_float('class_weight',0.3,0.95) if self.is_unbalance else 0.5
+        
+
+        if model_name == 'XGBoost':
+            return xgb.XGBClassifier(
+                                    **param,
+                                    objective='binary:logistic',
+                                    n_jobs=12
+                                    )
+        if model_name ==  'RF':
+            return RandomForestClassifier(**param,
+                        class_weight= {0:1-positive_class_weight,1:positive_class_weight},
+                        warm_start=True,
+                        n_jobs=8
+                        )  
+        if model_name ==  'LR': 
+            return sklearn.linear_model.LogisticRegression(
+                    **param,
+                    random_state= self.random_state,
+                    max_iter=10000,
+                    # class_weight= {0:1-positive_class_weight,1:positive_class_weight},
+                    verbose=0)
+        if model_name ==  'MLP':
+            return MLPClassifier(
+                    **param,
+                    learning_rate='adaptive',
+                    random_state=self.random_state,
+                    warm_start = True)
+        if model_name == 'GBDT':
+            return GradientBoostingClassifier(
+                **param,
+                random_state=self.random_state,
+                warm_start = True
+            )
+    
+    def get_objective(self,trial):
+        # 定义参数
+        model = self.get_model(self.model_name,trial)
+
+        model.fit(self.X_resampled, self.y_resampled)
+    
+        # Predict on the test set
+        y_pred = model.predict_proba(self.X_test)
+        
+        # Calculate AUROC
+        auroc = roc_auc_score(self.y_test, y_pred[:,1])
+
+        return auroc
+
+    def callback(self,study, trial):
+        with open("no_fea_select_best_params.json", "a") as file:
+            # file.write(f'{self.model_name}')
+            best_params = study.best_params
+            json.dump({self.model_name:{study.best_value:best_params}}, file)
+            file.write('\n')  # Add a new line for the next entry
+
+    def fit(self,X,y,model_name):
+        '''划分训练测试集'''
+
+        self.model_name = model_name
+
+        rskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.random_state)
+        train_index, test_index = next(rskf.split(X, y))
+        # for train_index, test_index in rskf.split(X, y):
+        X_train, self.X_test = X[train_index], X[test_index]
+        y_train, self.y_test = y[train_index], y[test_index]
+
+        sampler = BorderlineSMOTE(random_state=random_state)
+        self.X_resampled, self.y_resampled = sampler.fit_resample(X_train,y_train)
+        
+        
+        learn_object = self.get_objective
+        # Create a study object and optimize it
+        study = optuna.create_study(direction='maximize')
+
+        study.optimize(learn_object, n_trials=100,callbacks=[self.callback])
+
+        # Get the best parameters
+        best_params = study.best_params
+        best_auroc = study.best_value
+        print('model_name',model_name)
+        print("Best AUROC:", best_auroc)
+        print("Best Parameters:", best_params)
