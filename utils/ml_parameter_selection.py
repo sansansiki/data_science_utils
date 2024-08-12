@@ -214,11 +214,16 @@ class ML_Param_Selection():
 
 class smote_ml_Param_Selection():
     '''经过上采样的特征选择方法'''
-    def __init__(self,cv=3,random_state=0,is_unbalance=False,scorer=f1_score):
-        self.cv = cv
+    def __init__(self,random_state=0,is_unbalance=False,scorer=f1_score,callback_file=None):
+        '''
+        is_unbalance : 设置class weight
+        scorer : 参数选择的评价指标
+        callback_file : 记录Optuna的日志文件路径 
+        '''
         self.random_state = random_state
         self.is_unbalance = is_unbalance
         self.scorer = scorer 
+        self.callback_file = callback_file
 
     def get_params(self,key,trial):
         if self.model_name == 'XGBoost':
@@ -341,7 +346,7 @@ class smote_ml_Param_Selection():
         return auroc
 
     def callback(self,study, trial):
-        with open("no_fea_select_best_params.json", "a") as file:
+        with open(self.callback_file, "a") as file:
             # file.write(f'{self.model_name}')
             best_params = study.best_params
             json.dump({self.model_name:{study.best_value:best_params}}, file)
@@ -366,7 +371,7 @@ class smote_ml_Param_Selection():
         # Create a study object and optimize it
         study = optuna.create_study(direction='maximize')
 
-        study.optimize(learn_object, n_trials=100,callbacks=[self.callback])
+        study.optimize(learn_object, n_trials=100,callbacks=[self.callback]) if self.callback_file else study.optimize(learn_object, n_trials=100)
 
         # Get the best parameters
         best_params = study.best_params
