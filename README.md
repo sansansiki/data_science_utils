@@ -15,6 +15,7 @@ Data science utils with python, including data processing, machine learning, dat
 
 - class ML_Param_Selection : ML classification model parameter selection
 - class Smote_ML_Param_Selection :  ML classification model parameter selection with SMOTE algorithm
+- setup_seed(seed) ： Set the random seed
 
 ### file_operate 
 - [File Operate](docs/file_operate.md)

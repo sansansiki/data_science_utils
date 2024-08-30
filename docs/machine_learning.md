@@ -30,3 +30,11 @@
     - example :
       `ml = smote_ml_Param_Selection()
        ml.fit(train_all_x,train_y,'XGBoost')`
+
+
+## 2. Random Seed Set
+
+- [source code](../utils/machine_learning.py.py)
+- Description: This util is used to set the random seed for a given machine learning model. It takes in the model, X_train, y_train, X_test, y_test, n_trials, and n_jobs as parameters. 
+
+- setup_seed(seed)
